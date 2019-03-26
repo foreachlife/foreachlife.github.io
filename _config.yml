@@ -8,7 +8,7 @@ logo:               'assets/img/moon.jpg'
 background:         'assets/img/placeholder-big.jpg'
 tiled_bg:           false   # Set this true if you want to tile your background image, otherwise it will be covered
 locale:             en_US
-url:                https://foreachlife.github.io
+url:                #https://foreachlife.github.io
 
 # Jekyll
 permalink:          /:title/
@@ -67,7 +67,7 @@ xing:               #
 gems:
   - jekyll-mentions
   - jekyll-feed
-  - jekyll-sitemap
+  - jekyll-paginate
   - jekyll-gist
 
 jekyll-mentions:

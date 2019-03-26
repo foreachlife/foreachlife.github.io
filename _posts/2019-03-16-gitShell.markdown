@@ -1,0 +1,154 @@
+---
+layout:     	post
+title:     		git常用命令
+author:     	YY
+tag:            git
+subtitle:    	
+excerpt_separator: ""
+dataset:    /projectors/data.json
+---
+<h3>初始化命令:</h3>
+{% highlight ruby %}
+git init
+{% endhighlight ruby %}
+
+<h3>克隆项目:</h3>
+{% highlight ruby %}
+git clone + url
+{% endhighlight ruby %}
+
+<h3>克隆分支代码:</h3>
+{% highlight ruby %}
+git clone -b dev + url
+{% endhighlight ruby %}
+
+<h3>查看当前自己所在的分支:<h3>
+{% highlight ruby %}
+git branch 
+{% endhighlight%}
+
+<h3>在本地创建一个命名为branchName的分支:</h3>
+{% highlight ruby %}
+git branch + branchName
+{% endhighlight ruby %}
+
+<h3>删除分支:</h3>
+{% highlight ruby %}
+git branch -d
+{% endhighlight ruby %}
+
+<h3>查看服务器的所有分支以及自己当前所在的分支:</h3>
+{% highlight ruby %}
+git branch -a
+{% endhighlight ruby %}
+
+<h3>合并分支,将原分支合并到目标分支:</h3>
+{% highlight ruby %}
+git merge 原分支 目标分支
+{% endhighlight ruby %}
+
+<h3>把命名为branchName的本地分支推送到服务器:</h3>
+{% highlight ruby %}
+git push origin branchName
+{% endhighlight ruby %}
+
+<h3>从远程分支上拉取代码:</h3>
+{% highlight ruby %}
+git pull origin branchName
+{% endhighlight ruby %}
+
+<h3>查看当前分支状态:</h3>
+{% highlight ruby %}
+git status
+{% endhighlight ruby %}
+
+
+<h3>提交本地代码至远程dev分支:</h3>
+{% highlight ruby %}
+git push origin:dev 
+{% endhighlight%}
+
+
+<h3>添加文件命令(将当前文件添加到暂存区)，如果没执行git add 文件 则可能出现Untracked files 表示该文件未被追踪</h3>
+{% highlight ruby %}
+git add + filename
+{% endhighlight ruby %}
+<h3>添加所有文件:</h3>
+{% highlight ruby %}
+git add .
+{% endhighlight ruby %}
+
+<h3>git stash 将当前分支中的状态存储至git栈中:</h3><h4>这个命令比较常用,假如说你刚完成了一个任务A提交了,然后你去做任务B的事情了,但是这个时候又发现之前的任务A的代码有bug,必须马上解决,但是你现在的事情任务B还未完成,所以不能提交,你也不想回退到任务A完成的状态,这时就可以用git stash ,它可以将你的未完成的任务B暂存起来。</h4>
+{% highlight ruby %}
+git stash
+{% endhighlight ruby %}
+
+<h3>将项目切换至最近一次暂存状态:</h3>
+{% highlight ruby %}
+git stash pop
+{% endhighlight ruby %}
+
+<h3>查看暂存区列表,可以指定恢复哪一个版本:</h3>
+{% highlight ruby %}
+git stash list
+{% endhighlight ruby %}
+
+<h3>清空暂存区:</h3>
+{% highlight ruby %}
+git stash clear
+{% endhighlight ruby %}
+
+<h3>git中的文件一共有四种状态</h3>
+
+<h5>Untracked: 未跟踪, 此文件在文件夹中, 但并没有加入到git库, 不参与版本控制. 通过git add 状态变为Staged.
+
+<h5>Unmodify: 文件已经入库, 未修改, 即版本库中的文件快照内容与文件夹中完全一致. 这种类型的文件有两种去处, 如果它被修改, 而变为Modified. 如果使用git rm移出版本库, 则成为Untracked文件
+
+<h5>Modified: 文件已修改, 仅仅是修改, 并没有进行其他的操作. 这个文件也有两个去处, 通过git add可进入暂存staged状态, 使用git checkout 则丢弃修改过, 返回到unmodify状态, 这个git checkout即从库中取出文件, 覆盖当前修改
+
+<h5>Staged: 暂存状态. 执行git commit则将修改同步到库中, 这时库中的文件和本地文件又变为一致, 文件为Unmodify状态. 执行git reset HEAD filename取消暂存, 文件状态为Modified
+
+
+<h3>查看当前git用户名：</h3>
+{% highlight ruby %}
+ git config user.name
+{% endhighlight ruby %}
+
+<h3>查看当前git邮箱：</h3>
+{% highlight ruby %}
+git config user.email
+{% endhighlight ruby %}
+
+<h3>切换git用户名:</h3>
+{% highlight ruby %}
+git config --global user.name "YOURUSERNAME"
+{% endhighlight ruby %}
+
+<h3>切换git邮箱：</h3>
+{% highlight ruby %}
+git config --global user.email "YOUREMAIL"
+{% endhighlight ruby %}
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
