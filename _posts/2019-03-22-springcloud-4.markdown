@@ -24,8 +24,10 @@ dataset:    /projectors/data.json
 <h2>Zuul主要实现对外请求的负载均衡,将它们转发到不同的服务上去,ribbon是对服务集群的负载均衡</h2>
 <hr>
 
-<h3>配置Zuul,新建一个项目名为service-Zuul ,zuul也需要做为一个服务注册,所以要导入spring-cloud-starter-netflix-eureka-client,导入依赖spring-cloud-starter-netflix-zuul.</h3>
-<h3>修改启动类,zuul需要做为服务注册以及调用其它服务</h3>
+<h3>一 &ensp;&ensp;配置Zuul,新建一个项目名为service-Zuul </h3>
+<h3>二 &ensp;&ensp;依赖导入, 因为zuul需要做为一个服务注册,所以要导入spring-cloud-starter-netflix-eureka-client</h3>
+<h3>&ensp;&ensp;&ensp;&ensp;&ensp;导入Zuul依赖spring-cloud-starter-netflix-zuul.</h3>
+<h3>三 &ensp;&ensp;修改启动类,zuul需要做为服务注册以及调用其它服务</h3>
  
 {% highlight ruby %}
 @SpringBootApplication
@@ -43,7 +45,7 @@ public class ServiceZuulApplication {
 {% endhighlight ruby %}
  
 <br>
-<h3>修改配置文件application.yml  path为映射路径,serviceId对应具体的服务名称,这里就是根据不同的url前缀转发到不同的服务上</h3>
+<h3>四 &ensp;&ensp;修改配置文件application.yml  path为映射路径,serviceId对应具体的服务名称,这里就是根据不同的url前缀转发到不同的服务上</h3>
 {% highlight ruby %}
 eureka:
   client:
