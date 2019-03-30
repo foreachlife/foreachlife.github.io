@@ -1,6 +1,6 @@
 ---
 layout:         post
-title:     		springcloud(1)-eureka服务注册教程
+title:     		springcloud(1)-eureka服务注册
 author:     	YY
 tag:            springcloud
 subtitle:    	
@@ -154,10 +154,14 @@ public class EurekaClientApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(EurekaClientApplication.class, args);
 	}
+	
+	@Value("${server.port}")
+        String port;
 
-	@RequestMapping("hello")
+	@GetMapping("/hello")
 	public String hello(){
-		return "hello word";
+
+	return "hello, I'm address "+ port;
 	}
 }
 {% endhighlight ruby %}	
