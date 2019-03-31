@@ -46,7 +46,7 @@ public class ConfigServerApplication {
 
 }
 {% endhighlight ruby %}
-<h3>四 在git上创建对应的仓库以及配置文件config-client-properties</h3>
+<h3>四 在git上创建对应的仓库以及配置文件config-client-dev-properties</h3>
 
 <h3>五 创建模块config-client,继承父模块,导入依赖spring-cloud-starter-config，spring-boot-starter-web</h3>
 
