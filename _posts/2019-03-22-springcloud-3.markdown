@@ -1,6 +1,6 @@
 ---
 layout:         post
-title:     		springcloud(2)-feign
+title:     		springcloud(3)-feign声明式服务调用
 author:     	YY
 tag:            springcloud
 subtitle:    	
