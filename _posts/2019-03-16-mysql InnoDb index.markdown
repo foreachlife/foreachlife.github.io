@@ -2,7 +2,7 @@
 layout:         post
 title:     		mysql 索引
 author:     	YY
-tag:            git
+tag:            mysql
 subtitle:    	
 excerpt_separator: ""
 dataset:    /projectors/data.json
