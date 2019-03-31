@@ -1,6 +1,6 @@
 ---
 layout:         post
-title:     		springcloud(5)-zuul断路器和过滤器实现
+title:     		springcloud(5)-网关路由zuul
 author:     	YY
 tag:            springcloud
 subtitle:    	
@@ -9,111 +9,63 @@ dataset:    /projectors/data.json
 ---
 <h1>zuul</h1>
 <hr>
-<h2>Zuul支持断路器Hystrix </h2>
+<h2>Zuul是一种网关服务，可提供动态路由，监控，弹性，安全性等。</h2>
 
-<h3>通过继承ZuulFallbackProvider来实现,getRoute()方法中返回的api-a对应yml中配置的服务名</h3>
- 
-{% highlight ruby %}
-@Component
-public class MyZuulFallBack implements FallbackProvider {
-
-    @Override
-    public String getRoute() {
-        return null;
-    }
-
-    @Override
-    public ClientHttpResponse fallbackResponse(String route, Throwable cause) {
-        return new ClientHttpResponse() {
-            @Override
-            public HttpStatus getStatusCode() throws IOException {
-                return HttpStatus.OK;
-            }
-
-            @Override
-            public int getRawStatusCode() throws IOException {
-                return 200;
-            }
-
-            @Override
-            public String getStatusText() throws IOException {
-                return "OK";
-            }
-
-            @Override
-            public void close() {
-
-            }
-
-            @Override
-            public InputStream getBody() throws IOException {
-                return new ByteArrayInputStream("服务已关闭".getBytes());
-            }
-
-            @Override
-            public HttpHeaders getHeaders() {
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                return headers;
-            }
-        };
-    }
-}
-{% endhighlight ruby %}
-<h3>将服务service-ribbon关闭再访问,发现不会报错,而是返回配置的错误信息  "服务已关闭"</h3>
+<h3>Zuul使用一系列不同类型的过滤器，使我们能够快速灵活地将功能应用于我们的边缘服务。这些过滤器可帮助我们执行以下功能：</h3>
+<h3>1 身份验证和安全性 - 确定每个资源的身份验证要求并拒绝不满足这些要求的请求。</h3>
+<h3>2 动态路由 - 根据需要动态地将请求路由到不同的后端群集。</h3>
+<h3>3 动态路由 - 压力测试 - 逐渐增加群集的流量以衡量性能。</h3>
+<h3>4 为每种类型的请求分配容量并删除超过限制的请求。</h3>
+<h3>5 静态响应处理 - 直接在边缘构建一些响应，而不是将它们转发到内部集群</h3>
+<h3>6 多区域弹性 - 跨AWS区域路由请求，以使我们的ELB使用多样化，并使我们的优势更接近我们的成员</h3>
+<br>
 <br>
 
-
-<h2>Zuul配置过滤器</h2>
+<h2>Zuul主要实现对外请求的负载均衡,将它们转发到不同的服务上去,ribbon是对服务集群的负载均衡</h2>
 <hr>
 
-<h3>创建过滤器,写入如下配置</h3>
-
+<h3>一 &ensp;&ensp;配置Zuul,新建一个项目名为service-Zuul </h3>
+<h3>二 &ensp;&ensp;依赖导入, 因为zuul需要做为一个服务注册,所以要导入spring-cloud-starter-netflix-eureka-client</h3>
+<h3>&ensp;&ensp;&ensp;&ensp;&ensp;导入Zuul依赖spring-cloud-starter-netflix-zuul.</h3>
+<h3>三 &ensp;&ensp;修改启动类,zuul需要做为服务注册以及调用其它服务</h3>
  
 {% highlight ruby %}
-@Component
-public class MyZuulFilter extends ZuulFilter {
+@SpringBootApplication
+@EnableZuulProxy
+@EnableEurekaClient
+@EnableDiscoveryClient
+public class ServiceZuulApplication {
 
-        private static Logger log = LoggerFactory.getLogger(MyZuulFilter.class);
-        @Override
-        public String filterType() {
-            return "pre";
-        }
+	public static void main(String[] args) {
+		SpringApplication.run(ServiceZuulApplication.class, args);
+	}
 
-        @Override
-        public int filterOrder() {
-            return 0;
-        }
+}
 
-        @Override
-        public boolean shouldFilter() {
-            return true;
-        }
-
-        @Override
-        public Object run() {
-            RequestContext ctx = RequestContext.getCurrentContext();
-            HttpServletRequest request = ctx.getRequest();
-            log.info(String.format("%s >>> %s", request.getMethod(), request.getRequestURL().toString()));
-            Object accessToken = request.getParameter("token");
-            if(accessToken == null) {
-                log.warn("token is empty");
-                ctx.setSendZuulResponse(false);
-                ctx.setResponseStatusCode(401);
-                try {
-                    ctx.getResponse().getWriter().write("token is empty");
-                }catch (Exception e){}
-
-                return null;
-            }
-            log.info("ok");
-            return null;
-        }
 {% endhighlight ruby %}
  
 <br>
-
-<h3>可以在run方法中做一些token验证,参数验证等操作来过滤请求等</font></h3>
+<h3>四 &ensp;&ensp;修改配置文件application.yml  path为映射路径,serviceId对应具体的服务名称,这里就是根据不同的url前缀转发到不同的服务上</h3>
+{% highlight ruby %}
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8080/eureka/
+server:
+  port: 8777
+spring:
+  application:
+    name: service-zuul
+zuul:
+  routes:
+    api-a:
+      path: /api-a/**
+      serviceId: service-ribbon
+    api-b:
+      path: /api-b/**
+      serviceId: service-feign  
+{% endhighlight ruby %}
+<h3>最后启动服务,然后调用,测试一下,发现成功访问了两个服务</font></h3>
  
      
 
