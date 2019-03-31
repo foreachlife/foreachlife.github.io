@@ -1,119 +1,94 @@
 ---
 layout:         post
-title:     		springcloud(6)-config
+title:     		springcloud(7)-config配置中心
 author:     	YY
 tag:            springcloud
 subtitle:    	
 excerpt_separator: ""
 dataset:    /projectors/data.json
 ---
-<h1>zuul</h1>
+
+<h1>config服务配置</h1>
 <hr>
-<h2>config服务配置</h2>
-
-<h3>通过继承ZuulFallbackProvider来实现,getRoute()方法中返回的api-a对应yml中配置的服务名</h3>
+<h3> 服务器为外部配置（名称值对或等效的YAML内容）提供了基于资源的HTTP。服务器可以使用@EnableConfigServer注释轻松嵌入到Spring Boot应用程序中。所以这个应用程序是一个配置服务器</h3>
  
+<h2>config可以通过配置中心来统一管理分布式配置参数，可以使用git,svn,本地文件等方式来实现,默认git.</h2>
+<h3>一 创建模块config-server,继承父模块,导入依赖spring-cloud-config-server，spring-cloud-starter-eureka</h3>
+
+<h3>二 修改配置文件application.yml</h3>
 {% highlight ruby %}
-@Component
-public class MyZuulFallBack implements FallbackProvider {
+server:
+ port: 7777
 
-    @Override
-    public String getRoute() {
-        return "api-a";
-    }
+spring:
+  application:
+     name: config-server
+  cloud:
+   config:
+     server:
+      git:
+       uri: https://github.com/foreachlife/SpringcloudConfig.git
+      #username:
+      #password:
+      #searchPaths: respo
+     label: master
 
-    @Override
-    public ClientHttpResponse fallbackResponse(String route, Throwable cause) {
-        return new ClientHttpResponse() {
-            @Override
-            public HttpStatus getStatusCode() throws IOException {
-                return HttpStatus.OK;
-            }
+{% endhighlight ruby %}
+<h3>三 启动类加上@EnableConfigServer</h3>
+{% highlight ruby %}
+@SpringBootApplication
+@EnableConfigServer
+public class ConfigServerApplication {
 
-            @Override
-            public int getRawStatusCode() throws IOException {
-                return 200;
-            }
+	public static void main(String[] args) {
+		SpringApplication.run(ConfigServerApplication.class, args);
+	}
 
-            @Override
-            public String getStatusText() throws IOException {
-                return "OK";
-            }
-
-            @Override
-            public void close() {
-
-            }
-
-            @Override
-            public InputStream getBody() throws IOException {
-                return new ByteArrayInputStream("服务已关闭".getBytes());
-            }
-
-            @Override
-            public HttpHeaders getHeaders() {
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                return headers;
-            }
-        };
-    }
 }
 {% endhighlight ruby %}
-<h3>将服务service-ribbon关闭再访问,发现不会报错,而是返回配置的错误信息  "服务已关闭"</h3>
-<br>
+<h3>四 在git上创建对应的仓库以及配置文件config-client-properties</h3>
 
+<h3>五 创建模块config-client,继承父模块,导入依赖spring-cloud-starter-config，spring-boot-starter-web</h3>
 
-<h2>Zuul配置过滤器</h2>
-<hr>
-
-<h3>创建过滤器,写入如下配置</h3>
-
- 
+<h3>新建配置文件bootstrap.properties</h3>
 {% highlight ruby %}
-@Component
-public class MyZuulFilter extends ZuulFilter {
-
-        private static Logger log = LoggerFactory.getLogger(MyZuulFilter.class);
-        @Override
-        public String filterType() {
-            return "pre";
-        }
-
-        @Override
-        public int filterOrder() {
-            return 0;
-        }
-
-        @Override
-        public boolean shouldFilter() {
-            return true;
-        }
-
-        @Override
-        public Object run() {
-            RequestContext ctx = RequestContext.getCurrentContext();
-            HttpServletRequest request = ctx.getRequest();
-            log.info(String.format("%s >>> %s", request.getMethod(), request.getRequestURL().toString()));
-            Object accessToken = request.getParameter("token");
-            if(accessToken == null) {
-                log.warn("token is empty");
-                ctx.setSendZuulResponse(false);
-                ctx.setResponseStatusCode(401);
-                try {
-                    ctx.getResponse().getWriter().write("token is empty");
-                }catch (Exception e){}
-
-                return null;
-            }
-            log.info("ok");
-            return null;
-        }
+spring.application.name=config-client
+spring.cloud.config.label=master
+spring.cloud.config.profile=dev
+spring.cloud.config.uri= http://localhost:7777/
+server.port=8881
 {% endhighlight ruby %}
+<br>
+
+
+<h3>六 修改启动类,添加接口</h3>
+{% highlight ruby %}
+@SpringBootApplication
+@RestController
+public class ConfigClientApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ConfigClientApplication.class, args);
+	}
+
+	@Value("${foo}")
+	String foo;
+	@RequestMapping(value = "/hi")
+	public String hi(){
+		return foo;
+	}
+}
+{% endhighlight ruby %}
+
+<h3>访问端口http://localhost:7777/foo/dev  返回结果如下,表示成功了</h3>
+<img src="data:image/png;base64,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" />
+
+
+ 
+
  
 <br>
 
-<h3>可以在run方法中做一些token验证,参数验证等操作来过滤请求等</font></h3>
  
      
 
