@@ -1,0 +1,108 @@
+---
+layout:         post
+title:     		java多线程打印abc
+author:     	YY
+tag:            thread
+subtitle:    	
+excerpt_separator: ""
+dataset:    /projectors/data.json
+---
+
+<h1>建立三个线程A、B、C，A线程打印10次字母A，B线程打印10次字母B,C线程打印10次字母C，但是要求三个线程同时运行，并且实现交替打印，即按照ABCABCABC的顺序打印。</h1>
+<hr>
+<h1>解决方式</h1>
+<h2>一 Synchronized同步法</h2>
+ 
+<h3>使用同步块和wait、notify的方法控制三个线程的执行次序。具体方法如下：从大的方向上来讲，该问题为三线程间的同步唤醒操作，主要的目的就是ThreadA->ThreadB->ThreadC->ThreadA循环执行三个线程。
+为了控制线程执行的顺序，那么就必须要确定唤醒、等待的顺序，所以每一个线程必须同时持有两个对象锁，才能进行打印操作。一个对象锁是prev，就是前一个线程所对应的对象锁，其主要作用是保证当前线程
+一定是在前一个线程操作完成后（即前一个线程释放了其对应的对象锁）才开始执行。还有一个锁就是自身对象锁。主要的思想就是，为了控制执行的顺序，必须要先持有prev锁（也就前一个线程要释放其自身对象锁），
+然后当前线程再申请自己对象锁，两者兼备时打印。之后首先调用self.notify()唤醒下一个等待线程（注意notify不会立即释放对象锁，只有等到同步块代码执行完毕后才会释放），再调用prev.wait()立即释放prev对象锁，
+当前线程进入休眠，等待其他线程的notify操作再次唤醒。</h3>
+ 
+{% highlight ruby %}
+public class printerABC implements Runnable {
+
+    private String name;
+    private Object pre;
+    private Object self;
+
+    public printerABC(String name,Object pre,Object self) {
+        this.name = name;
+        this.self = self;
+        this.pre = pre;
+    }
+
+    @Override
+    public void run() {
+        int count=3;
+        try {
+            while (count>0){
+                synchronized (pre){
+                    synchronized (self){
+                        System.out.println(name);
+                        count--;
+                        self.notifyAll();
+                    }
+                    try {
+                        if(count==0){
+                            pre.notifyAll();
+                        }else {
+                            pre.wait(); // 立即释放 prev锁，当前线程休眠，等待唤醒
+                        }
+                        /**
+                         * JVM会在wait()对象锁的线程中随机选取一线程，赋予其对象锁，唤醒线程，继续执行。
+                         */
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+
+        }catch (Exception e){
+
+        }
+
+    }
+	
+    public static void main(String[] args) {
+        try {
+            Object a = new Object();
+            Object b = new Object();
+            Object c = new Object();
+            Thread ta = new Thread(new printerABC("A", c, a));
+            Thread tb = new Thread(new printerABC("B", a, b));
+            Thread tc = new Thread(new printerABC("C", b, c));
+            ta.start();
+            Thread.sleep(100);
+            tb.start();
+            Thread.sleep(100);
+            tc.start();
+        }catch (Exception e){
+			
+        }
+    }
+}
+{% endhighlight ruby %}
+ 
+
+<h3>二  join</h3>
+
+ 
+
+ 
+<br>
+
+ 
+     
+
+
+
+
+
+
+
+
+
+
+
