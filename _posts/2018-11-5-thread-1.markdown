@@ -1,6 +1,6 @@
 ---
 layout:         post
-title:     		java多线程打印abc
+title:     		java多线程abc问题
 author:     	YY
 tag:            thread
 subtitle:    	

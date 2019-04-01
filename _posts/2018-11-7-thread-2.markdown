@@ -1,0 +1,74 @@
+---
+layout:         post
+title:     		如何写一个死锁
+author:     	YY
+tag:            thread
+subtitle:    	
+excerpt_separator: ""
+dataset:    /projectors/data.json
+---
+
+<h1>什么是死锁,当两个线程A,B互相持有对方需要的锁时,就会产生死锁。</h1>
+<hr>
+
+<h3>线程的同步化可能会造成死锁，死锁发生在两个线程相互持有对方正在等待的东西（实际是两个线程共享的东西）。只要有两个线程和两个对象就可能产生死锁。</h3>
+{% highlight ruby %}
+public class DeadThread extends Thread {
+
+    private static Object lockA=new Object();
+    private static Object lockB=new Object();
+    private int type;
+    public DeadThread(int type){
+        this.type=type;
+    }
+    @Override
+    public void run() {
+        try {
+               if(1==type){
+                   synchronized (lockA){
+                       Thread.sleep(500);
+                       synchronized (lockB){
+                           System.out.println("DeadThread start lockA");
+                       }
+                   }
+               }else {
+                   synchronized (lockB){
+                       Thread.sleep(500);
+                       synchronized (lockA){
+                           System.out.println("DeadThread start lockB");
+                       }
+                   }
+               }
+
+        }catch (Exception e){
+            System.out.println("lock A exception");
+        }
+    }
+    public static void main(String[] args) {
+
+        Thread t1=new Thread(new DeadThread(1));
+        Thread t2=new Thread(new DeadThread(2));
+        t1.start();
+        t2.start();
+    }
+}
+{% endhighlight ruby %}
+
+
+
+ 
+<br>
+
+ 
+     
+
+
+
+
+
+
+
+
+
+
+
