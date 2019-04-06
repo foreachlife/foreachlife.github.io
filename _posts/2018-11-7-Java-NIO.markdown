@@ -2,7 +2,7 @@
 layout:         post
 title:     		NIO
 author:     	YY
-tag:            thread
+tag:            io
 subtitle:    	
 excerpt_separator: ""
 dataset:    /projectors/data.json
