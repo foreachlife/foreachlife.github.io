@@ -86,7 +86,7 @@ public class printerABC implements Runnable {
 {% endhighlight ruby %}
  
 
-<h2>二  join</h2>
+<h2>二  lock</h2>
 <h3>通过ReentrantLock我们可以很方便的进行显式的锁操作，即获取锁和释放锁，对于同一个对象锁而言，统一时刻只可能有一个线程拿到了这个锁，此时其他线程通过lock.lock()来获取对象锁时都会被阻塞，
 直到这个线程通过lock.unlock()操作释放这个锁后，其他线程才能拿到这个锁。</h3>
 
